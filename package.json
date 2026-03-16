@@ -1,0 +1,16 @@
+{
+  "name": "presentation-master",
+  "version": "1.0.0",
+  "description": "AI-powered reveal.js presentation workspace",
+  "scripts": {
+    "start": "browser-sync start --server --files 'projects/**/*.html, projects/**/*.md, projects/**/*.css, projects/**/*.js, projects/**/*.png, projects/**/*.jpg, projects/**/*.svg' --no-notify --port 8000",
+    "new": "bash scripts/new-project.sh"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "reveal.js": "^5.2.1"
+  },
+  "devDependencies": {
+    "browser-sync": "^3.0.4"
+  }
+}

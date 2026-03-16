@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# User-specific presentations
+projects/*
+!projects/.gitkeep
+
+# User-specific assets (logos, images)
+assets/*
+!assets/.gitkeep
+
+# OS files
+.DS_Store
+*.swp
+*.swo
+*~
