@@ -4,13 +4,18 @@
   "description": "AI-powered reveal.js presentation workspace",
   "scripts": {
     "start": "browser-sync start --server --files 'projects/**/*.html, projects/**/*.md, projects/**/*.css, projects/**/*.js, projects/**/*.png, projects/**/*.jpg, projects/**/*.svg' --no-notify --port 8000",
-    "new": "bash scripts/new-project.sh"
+    "new": "bash scripts/new-project.sh",
+    "export": "node scripts/export-pptx.js"
   },
   "license": "MIT",
   "dependencies": {
     "reveal.js": "^5.2.1"
   },
   "devDependencies": {
-    "browser-sync": "^3.0.4"
+    "adm-zip": "^0.5.16",
+    "browser-sync": "^3.0.4",
+    "pptxgenjs": "^4.0.1",
+    "puppeteer": "^24.39.1",
+    "sharp": "^0.34.5"
   }
 }

@@ -17,7 +17,8 @@ presentation-master/
 ├── template/
 │   └── index.html             # Base template for new projects
 ├── scripts/
-│   └── new-project.sh         # Script to scaffold new projects
+│   ├── new-project.sh         # Script to scaffold new projects
+│   └── export-pptx.js         # Export presentation to PPTX (Puppeteer + PptxGenJS)
 ├── .claude/
 │   ├── skills/
 │   │   └── presentation-master/
@@ -65,4 +66,30 @@ All operations support natural language — no slash commands required. Just des
 - Check that referenced assets exist in `assets/` and warn if missing.
 - When editing slides, use the Edit tool for targeted changes — never rewrite the entire `index.html`.
 - Always add `data-slide-id` attributes on every top-level `<section>` tag when generating or inserting slides (1-indexed, sequential).
+- Always set `width: 960, height: 540` in `Reveal.initialize()` to enforce 16:9 aspect ratio matching Google Slides (10" x 5.625"). Never use the reveal.js default (960x700).
 - When updating or adding commands in `.claude/commands/`, always update `presentation-help.md` to reflect the current set of available commands.
+
+## Dependencies
+
+After cloning, run `npm install` to install all dependencies:
+
+| Package | Type | Purpose |
+|---------|------|---------|
+| `reveal.js` | runtime | Presentation framework |
+| `browser-sync` | dev | Local dev server with hot reload (`npm start`) |
+| `puppeteer` | dev | Headless browser for PPTX export (screenshots each slide) |
+| `pptxgenjs` | dev | Generate PPTX files with images + clickable hyperlink overlays |
+| `sharp` | dev | Image processing (resize, DPI metadata) for export |
+| `adm-zip` | dev | Post-process PPTX XML (remove noChangeAspect lock) |
+
+**Quick setup:**
+```bash
+npm install                          # Install all dependencies
+npx puppeteer browsers install chrome  # Download Chrome for PPTX export
+npm start                           # Start dev server at http://localhost:8000
+```
+
+**PPTX export** requires the dev server to be running:
+```bash
+npm run export -- <project-name>   # Export to projects/<name>/<name>.pptx
+```
