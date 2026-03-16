@@ -123,6 +123,86 @@ async function extractLinks(page) {
   });
 }
 
+/**
+ * Wait for dynamic rich content to finish rendering on the current slide.
+ * Detects Mermaid, Chart.js, KaTeX, and PlantUML content and waits for
+ * their rendered output. Falls back to a fixed delay if no dynamic content.
+ */
+async function waitForDynamicContent(page, maxTimeout = 5000) {
+  const hasDynamic = await page.evaluate(() => {
+    const slide = document.querySelector('.reveal .slides section.present');
+    if (!slide) return false;
+    const target = slide.querySelector('section.present') || slide;
+    return !!(
+      target.querySelector('.mermaid') ||
+      target.querySelector('canvas') ||
+      target.querySelector('.katex, .katex-display, [data-math-type]') ||
+      target.querySelector('img[src*="plantuml"]')
+    );
+  });
+
+  if (!hasDynamic) {
+    // No dynamic content detected — use standard delay
+    await new Promise((r) => setTimeout(r, 400));
+    return;
+  }
+
+  // Wait for dynamic content to render with polling
+  const start = Date.now();
+  const pollInterval = 200;
+
+  while (Date.now() - start < maxTimeout) {
+    const ready = await page.evaluate(() => {
+      const slide = document.querySelector('.reveal .slides section.present');
+      if (!slide) return true;
+      const target = slide.querySelector('section.present') || slide;
+
+      // Mermaid: wait for SVG to appear inside .mermaid containers
+      const mermaidDivs = target.querySelectorAll('.mermaid');
+      for (const div of mermaidDivs) {
+        if (!div.querySelector('svg')) return false;
+      }
+
+      // Chart.js: wait for canvas elements to have a Chart instance
+      const canvases = target.querySelectorAll('canvas');
+      for (const canvas of canvases) {
+        if (!canvas.__chartjs_instance__ && !canvas.getContext('2d').__chart) {
+          // Chart.js v4 stores instance differently — check if canvas has been drawn
+          const ctx = canvas.getContext('2d');
+          // A drawn canvas has non-empty image data
+          const pixel = ctx.getImageData(0, 0, 1, 1).data;
+          if (pixel[3] === 0) return false;
+        }
+      }
+
+      // KaTeX: check that .katex elements contain rendered content
+      const katexEls = target.querySelectorAll('.katex, .katex-display');
+      for (const el of katexEls) {
+        if (!el.querySelector('.katex-html')) return false;
+      }
+
+      // PlantUML: wait for images to load
+      const pumlImgs = target.querySelectorAll('img[src*="plantuml"]');
+      for (const img of pumlImgs) {
+        if (!img.complete || img.naturalWidth === 0) return false;
+      }
+
+      return true;
+    });
+
+    if (ready) {
+      // Small extra delay for rendering to settle
+      await new Promise((r) => setTimeout(r, 200));
+      return;
+    }
+
+    await new Promise((r) => setTimeout(r, pollInterval));
+  }
+
+  // Timed out — proceed anyway with a warning
+  console.warn('  (dynamic content may not have fully rendered)');
+}
+
 // -- Main --------------------------------------------------------------------
 
 async function main() {
@@ -191,7 +271,7 @@ async function main() {
     // Navigate to slide
     if (i > 0) {
       await page.evaluate(() => Reveal.next());
-      await new Promise((r) => setTimeout(r, 400));
+      await waitForDynamicContent(page);
     }
 
     const slideNum = i + 1;

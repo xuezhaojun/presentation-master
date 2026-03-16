@@ -40,6 +40,16 @@ List each `/presentation:*` command with a one-line description. Example:
 8. Iterate: `/presentation:edit <instruction>` (e.g., "add a slide about security after slide 3")
 9. Repeat steps 7-8 as needed
 
+### Rich Content Support
+
+Presentations can include rich content integrations. Just mention them in `init.md` and the generator will automatically include the right scripts:
+
+- **Math formulas** — Use `$E = mc^2$` (inline) or `$$\sum_{i=1}^{n} x_i$$` (display). Powered by KaTeX (offline).
+- **Mermaid diagrams** — Write "mermaid" in your outline with a diagram description. Flowcharts, sequence diagrams, Gantt charts, etc. (requires network).
+- **Chart.js charts** — Mention "chart", "bar chart", "pie chart", etc. in your outline. Data-driven charts and graphs (offline).
+- **PlantUML** — Mention "plantuml" or "uml" for UML diagrams. Rendered via plantuml.com (requires network).
+- **Excalidraw** — Export SVG from Excalidraw, save to `assets/`, mention "excalidraw" in outline. No runtime dependency.
+
 ## Rules
 
 - Always read `.claude/commands/` to dynamically discover commands — do not hardcode the list.

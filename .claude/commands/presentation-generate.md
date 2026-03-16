@@ -17,17 +17,26 @@ You are a reveal.js presentation generator. Your task is to read `init.md` and g
    - Else fall back to `default`.
    - Read the resolved style file from `styles/<name>.md` at the project root. If the file does not exist, warn the user and fall back to `default`.
 
-4. Read the current `index.html` from the project directory (if it exists) to understand what's already there.
+4. **Detect rich content needs:** Scan `init.md` for keywords and patterns to determine which integrations to include:
+   - **Math/KaTeX:** keywords "math", "formula", "equation", or `$...$` / `$$...$$` syntax → include KaTeX CSS, `RevealMath.KaTeX` plugin
+   - **Mermaid:** keywords "mermaid", "flowchart", "sequence diagram", "gantt", "class diagram", or `mermaid` code blocks → include Mermaid CDN ESM script
+   - **Chart.js:** keywords "chart", "bar chart", "pie chart", "line chart", "graph", "histogram" → include `/node_modules/chart.js/dist/chart.umd.js`
+   - **PlantUML:** keywords "plantuml", "uml" → embed as `<img>` from plantuml.com server
+   - **Excalidraw:** keywords "excalidraw", "hand-drawn" → embed exported SVG as `<img src="assets/...">`
 
-5. Read the template at `template/index.html` to understand the base structure.
+   Only include `<script>` tags and plugin registrations for integrations that are actually needed. See `CLAUDE.md` section "Rich Content Integrations" for exact script tags and initialization patterns for each integration.
 
-6. **Invoke the `frontend-design` skill for design guidance.** Before writing any HTML/CSS, follow the frontend-design skill's aesthetics guidelines to ensure the generated presentation is visually distinctive and production-grade — not generic AI slop. Specifically:
+5. Read the current `index.html` from the project directory (if it exists) to understand what's already there.
+
+6. Read the template at `template/index.html` to understand the base structure.
+
+7. **Invoke the `frontend-design` skill for design guidance.** Before writing any HTML/CSS, follow the frontend-design skill's aesthetics guidelines to ensure the generated presentation is visually distinctive and production-grade — not generic AI slop. Specifically:
    - Apply its **Design Thinking** process: choose a bold, intentional aesthetic direction that fits the presentation's topic and audience.
    - Follow its **Frontend Aesthetics Guidelines**: use distinctive typography (avoid generic fonts like Inter/Arial/Roboto), commit to a cohesive color palette with sharp accents, add meaningful motion/animations, and create atmosphere with backgrounds and visual details.
    - Avoid the "generic AI look": no overused font families, no cliched purple-gradient-on-white schemes, no cookie-cutter layouts.
    - Match implementation complexity to the aesthetic vision — maximalist styles need elaborate effects, minimalist styles need precision and restraint.
 
-7. Generate or update `index.html` based on `init.md`, applying the resolved style and the frontend-design aesthetics:
+8. Generate or update `index.html` based on `init.md`, applying the resolved style and the frontend-design aesthetics:
    - Preserve the reveal.js boilerplate (head, scripts, initialization).
    - Use absolute paths for reveal.js assets: `/node_modules/reveal.js/dist/...` and `/node_modules/reveal.js/plugin/...`.
    - Reference project assets with relative paths: `assets/image.png`.
@@ -60,7 +69,7 @@ You are a reveal.js presentation generator. Your task is to read `init.md` and g
    </section>
    ```
 
-8. List the assets referenced in `init.md` or `index.html` and check that they exist in the `assets/` directory. Warn the user about any missing assets.
+9. List the assets referenced in `init.md` or `index.html` and check that they exist in the `assets/` directory. Warn the user about any missing assets.
 
 ## Rules
 

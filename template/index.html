@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="/node_modules/reveal.js/dist/reveal.css">
     <link rel="stylesheet" href="/node_modules/reveal.js/dist/theme/black.css">
     <link rel="stylesheet" href="/node_modules/reveal.js/plugin/highlight/monokai.css">
+    <!-- KaTeX CSS for math rendering (always included — lightweight) -->
+    <link rel="stylesheet" href="/node_modules/katex/dist/katex.min.css">
   </head>
   <body>
     <div class="reveal">
@@ -25,12 +27,39 @@
     <script src="/node_modules/reveal.js/plugin/markdown/markdown.js"></script>
     <script src="/node_modules/reveal.js/plugin/highlight/highlight.js"></script>
     <script src="/node_modules/reveal.js/plugin/notes/notes.js"></script>
+    <!-- KaTeX math plugin (built-in to reveal.js) -->
+    <script src="/node_modules/reveal.js/plugin/math/math.js"></script>
+
+    <!--
+      Optional integrations — only include when content needs them:
+
+      Chart.js (local, npm):
+        <script src="/node_modules/chart.js/dist/chart.umd.js"></script>
+
+      Mermaid (CDN only, ESM-only — no UMD build):
+        <script type="module">
+          import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+          mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+          await mermaid.run({ querySelector: '.mermaid' });
+        </script>
+
+      PlantUML (CDN, requires plantuml.com server):
+        Uses <img src="https://www.plantuml.com/plantuml/svg/..."> with encoded diagrams
+
+      Excalidraw (no dependency needed):
+        Export SVG from Excalidraw, embed as <img src="assets/diagram.svg">
+    -->
+
     <script>
       Reveal.initialize({
         hash: true,
         width: 960,
         height: 540,
-        plugins: [RevealMarkdown, RevealHighlight, RevealNotes]
+        plugins: [RevealMarkdown, RevealHighlight, RevealNotes, RevealMath.KaTeX],
+        math: {
+          // KaTeX configuration
+          katexUrl: '/node_modules/katex/dist',
+        }
       });
     </script>
   </body>

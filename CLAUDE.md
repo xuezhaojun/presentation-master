@@ -69,12 +69,83 @@ All operations support natural language — no slash commands required. Just des
 - Always set `width: 960, height: 540` in `Reveal.initialize()` to enforce 16:9 aspect ratio matching Google Slides (10" x 5.625"). Never use the reveal.js default (960x700).
 - When updating or adding commands in `.claude/commands/`, always update `presentation-help.md` to reflect the current set of available commands.
 
+## Rich Content Integrations
+
+Presentations can include rich content beyond plain HTML. Only include the scripts/plugins that are actually used in the content — keep presentations lean.
+
+### KaTeX (Math Formulas)
+
+- **Loading:** Built-in reveal.js plugin + npm package (works offline)
+- **Scripts:** Already in template — `/node_modules/reveal.js/plugin/math/math.js` + KaTeX CSS
+- **Plugin registration:** `RevealMath.KaTeX` in `Reveal.initialize({ plugins: [...] })`
+- **Syntax:** Inline `$E = mc^2$`, display `$$\int_0^\infty e^{-x} dx$$`
+- **Always include** KaTeX CSS and plugin when math content is detected
+
+### Mermaid (Diagrams & Flowcharts)
+
+- **Loading:** CDN only (v11+ is ESM-only, no UMD build)
+- **Script tag:**
+  ```html
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+    // Must run after Reveal.js is ready to render diagrams on all slides
+    Reveal.on('ready', () => mermaid.run({ querySelector: '.mermaid' }));
+    Reveal.on('slidechanged', () => mermaid.run({ querySelector: '.mermaid' }));
+  </script>
+  ```
+- **Usage:** `<div class="mermaid">graph LR; A-->B;</div>`
+- **Gotcha:** Mermaid only renders visible elements. The `slidechanged` listener ensures diagrams on later slides render when navigated to.
+
+### Chart.js (Charts & Graphs)
+
+- **Loading:** npm package (works offline)
+- **Script:** `<script src="/node_modules/chart.js/dist/chart.umd.js"></script>`
+- **Usage:** Add a `<canvas>` element and initialize via inline `<script>`:
+  ```html
+  <canvas id="myChart" width="600" height="400"></canvas>
+  <script>
+    Reveal.on('ready', () => {
+      new Chart(document.getElementById('myChart'), { type: 'bar', data: {...} });
+    });
+  </script>
+  ```
+- **Tip:** Initialize charts inside `Reveal.on('ready', ...)` to ensure the DOM is available.
+
+### PlantUML (UML Diagrams)
+
+- **Loading:** CDN — requires plantuml.com server (network needed)
+- **Usage:** Encode the diagram and embed as an image:
+  ```html
+  <img src="https://www.plantuml.com/plantuml/svg/SoWkIImgAStDuNBAJrBGjLDmpCbCJbMmKiX8pSd9vt98pKi1IW80" alt="UML diagram">
+  ```
+- **Alternative:** Use the PlantUML online editor to generate the encoded URL, then embed the `<img>` tag.
+
+### Excalidraw (Hand-drawn Diagrams)
+
+- **Loading:** No dependency needed
+- **Usage:** Export SVG from Excalidraw app, save to `assets/`, embed as:
+  ```html
+  <img src="assets/diagram.svg" alt="Architecture diagram" style="max-width: 80%;">
+  ```
+- **Tip:** SVG export preserves the hand-drawn aesthetic and scales perfectly.
+
+### Rules for Rich Content
+
+- **Only include scripts for integrations actually used in the content.** Scan `init.md` for keywords like "mermaid", "diagram", "chart", "graph", "math", "formula", "equation", "plantuml", "excalidraw" to determine which integrations to load.
+- KaTeX CSS is lightweight and can always be included. The math plugin should only be registered if math content is present.
+- Mermaid and PlantUML require network access — warn the user if presenting offline.
+- Chart.js and KaTeX work fully offline via npm packages.
+- Excalidraw has zero runtime dependencies — just embed the exported SVG.
+
 ## Dependencies
 
 After cloning, run `npm install` to install all dependencies:
 
 | Package | Type | Purpose |
 |---------|------|---------|
+| `chart.js` | runtime | Charts and graphs (UMD build, works offline) |
+| `katex` | runtime | Math formula rendering (used by reveal.js math plugin) |
 | `reveal.js` | runtime | Presentation framework |
 | `browser-sync` | dev | Local dev server with hot reload (`npm start`) |
 | `puppeteer` | dev | Headless browser for PPTX export (screenshots each slide) |

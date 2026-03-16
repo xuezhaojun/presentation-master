@@ -9,6 +9,8 @@
   },
   "license": "MIT",
   "dependencies": {
+    "chart.js": "^4.4.9",
+    "katex": "^0.16.22",
     "reveal.js": "^5.2.1"
   },
   "devDependencies": {
